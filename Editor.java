@@ -15,6 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+
 public class Editor extends Application // Needs to extend Application to run as main function
 {
 	//stage is the root window
@@ -60,7 +62,12 @@ public class Editor extends Application // Needs to extend Application to run as
 			TextField projectDirField = new TextField();
 			grid.add(projectDir , 0, 2);
 			grid.add(projectDirField, 1, 2);
-			
+
+			Label mainClass = new Label("Main Class: ");
+			TextField mainClassField = new TextField();
+			grid.add(mainClass, 0, 3);
+			grid.add(mainClassField, 1, 3);
+
 			//Text to display exception errors
 			final Text errText = new Text();
 			grid.add(errText, 1, 6);
@@ -70,20 +77,34 @@ public class Editor extends Application // Needs to extend Application to run as
 			//Write out file with the basic project settings if possible if not tell user
 			confirmBtn.setOnAction((ActionEvent a) -> {
 				try{
-					File projectFile = new File(projectDirField.getText() + ".project");
-					FileOutputStream fs = new FileOutputStream(projectFile);
-					OutputStreamWriter os = new OutputStreamWriter(fs);
-					Writer w = new BufferedWriter(os);
-					w.write("Project Name: " + projectNameField.getText() + "\n");
-					w.write("Project Directory: " + projectDirField.getText() + "\n");
-					w.write("Project Libraries: " + "./libs/\n");
-					w.close();
-					errText.setText("Created project files successfully");
+					if(projectNameField.getText() == "" || projectDirField.getText() == ""){
+						errText.setFill(Color.FIREBRICK);
+						errText.setText("Missing fields");
+					}else{
+						File projectFile = new File(projectDirField.getText() + ".project");
+						File mainClassFile = new File(projectDirField.getText() + mainClassField.getText() + ".java");
+						new File(projectDirField.getText() + "libs").mkdirs(); //returns a boolean
+
+						FileOutputStream fs = new FileOutputStream(projectFile);
+						OutputStreamWriter os = new OutputStreamWriter(fs);
+						Writer w = new BufferedWriter(os);
+						w.write("Project Name: " + projectNameField.getText() + "\n");
+						w.write("Project Directory: " + projectDirField.getText() + "\n");
+						w.write("Project Libraries: " + projectDirField.getText() + "libs/\n");
+						w.write("Project Main: " + projectDirField.getText() + mainClassField.getText() + ".java");
+						w.close();
+						
+						//can setup some basic code here in the file i.e. public class Main ...
+						fs = new FileOutputStream(mainClassFile);
+						fs.close();
+
+						errText.setFill(Color.GREEN);
+						errText.setText("Created project files");
+					}
 				}catch(IOException e){
 					errText.setFill(Color.FIREBRICK);
-					errText.setText("Error creating project files...");
+					errText.setText("Error creating project files");
 				}
-
 			});
 
 
@@ -111,6 +132,41 @@ public class Editor extends Application // Needs to extend Application to run as
 
 		MenuItem openProjectItem = new MenuItem("Open Project");
 		openProjectItem.setAccelerator(KeyCombination.keyCombination("Ctrl+B"));
+		openProjectItem.setOnAction((ActionEvent t) -> {
+			try{
+				//make a file picker
+				FileChooser fc = new FileChooser();
+				fc.setTitle("Open Project File");
+				File projectFile = fc.showOpenDialog(stage);
+				FileReader fr = new FileReader(projectFile);
+				BufferedReader br = new BufferedReader(fr);
+				//StringBuffer sb = new StringBuffer();
+
+				//Read the file, all relevant items are after the : so search for that
+				String pName, pDir, pLib, pMain;
+
+				//This is the only real one we use at the moment
+				pName = br.readLine();
+				pName = pName.substring(pName.indexOf(":"), pName.length());
+
+				//In the future will be used to display tree view
+				pDir = br.readLine();
+				pDir = pDir.substring(pDir.indexOf(":"), pDir.length());
+
+				//In the future will be used for compiling
+				pLib = br.readLine();
+				pLib = pLib.substring(pLib.indexOf(":"), pLib.length());
+				
+				//In the future will load into text area
+				pMain = br.readLine();
+				pMain = pMain.substring(pMain.indexOf(":"), pMain.length());
+
+				stage.setTitle("Project: " + pName);
+			}catch(IOException e){
+				//Make a window telling the user there was an error!
+
+			}
+		});
 
 		MenuItem saveItem = new MenuItem("Save");
 		saveItem.setAccelerator(KeyCombination.keyCombination("Ctrl+S"));

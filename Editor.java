@@ -77,7 +77,10 @@ public class Editor extends Application // Needs to extend Application to run as
 			//Write out file with the basic project settings if possible if not tell user
 			confirmBtn.setOnAction((ActionEvent a) -> {
 				try{
-					if(projectNameField.getText() == "" || projectDirField.getText() == ""){
+					if(projectNameField.getText().length() == 0 
+						|| projectDirField.getText().length() == 0
+						|| mainClassField.getText().length() == 0)
+					{
 						errText.setFill(Color.FIREBRICK);
 						errText.setText("Missing fields");
 					}else{

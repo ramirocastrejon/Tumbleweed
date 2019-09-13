@@ -16,7 +16,7 @@ import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-
+import javafx.stage.Modality;
 public class Editor extends Application // Needs to extend Application to run as main function
 {
 	//stage is the root window
@@ -27,6 +27,8 @@ public class Editor extends Application // Needs to extend Application to run as
 		
 		//editor box may change to the HTML Editor in the javafx library
 		TextArea textArea = new TextArea();
+		//textArea.setPreferedHeight(600);
+		//textArea.setPreferedWidth(800);
 		
 		//creates the menubar
 		MenuBar menuBar = new MenuBar();
@@ -50,7 +52,9 @@ public class Editor extends Application // Needs to extend Application to run as
 			//create a new window
 			Scene newProjectWindow = new Scene(grid, 400, 300);
 			Stage nStage = new Stage();
+			nStage.initModality(Modality.APPLICATION_MODAL);
 			nStage.setTitle("New Project Settings");		
+
 
 			//set up labels and text fields and add them to the window
 			Label projectName = new Label("Project Name: ");
@@ -128,7 +132,7 @@ public class Editor extends Application // Needs to extend Application to run as
 			grid.add(hbBtn2,1,5);
 			
 			nStage.setScene(newProjectWindow);
-			nStage.show();
+			nStage.showAndWait();
 
 			//stage.setTitle("New Project");
 		});

@@ -56,21 +56,23 @@ public class Controller implements Initializable {
 
     @FXML
     public void newProject() {
+        String projectDir = NewProjectBox.display("Create Project");
+
         try {
+            if (projectDir != null) {
+                System.out.println("Creating project " + projectDir + "...");
 
-            fileChooser.setTitle("Create Project");
-            File dir = directoryChooser.showDialog(stage);
+                new File(projectDir + "/libs").mkdirs(); // returns a boolean
 
-            if (dir != null) {
-                new File(dir.toString() + "/libs").mkdirs(); // returns a boolean
-
-                File mainClassFile = new File(dir.toString() + "/Main.java");
+                File mainClassFile = new File(projectDir + "/Main.java");
 
                 // can setup some basic code here in the file i.e. public class Main ...
                 FileOutputStream fs = new FileOutputStream(mainClassFile);
                 fs.close();
 
-                stage.setTitle(dir.toString());
+                stage.setTitle(directoryChooser.toString() + projectDir);
+
+                System.out.println("Project created successfully.");
             } else {
                 throw new FileNotFoundException("File not found.");
             }

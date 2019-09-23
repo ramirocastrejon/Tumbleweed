@@ -27,8 +27,8 @@ public class Editor extends Application // Needs to extend Application to run as
 		
 		//editor box may change to the HTML Editor in the javafx library
 		TextArea textArea = new TextArea();
-		//textArea.setPreferedHeight(600);
-		//textArea.setPreferedWidth(800);
+		textArea.setPrefColumnCount(600);
+		textArea.setPrefRowCount(800);
 		
 		//creates the menubar
 		MenuBar menuBar = new MenuBar();

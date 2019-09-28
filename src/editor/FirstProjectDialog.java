@@ -3,21 +3,22 @@ package editor;
 import java.io.*;
 
 import javafx.stage.*;
+
 import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
+
 import javafx.geometry.*;
 
-
-public class NewProjectBox {
+public class FirstProjectDialog {
 
     static String projectName;
 
     public static String display(String title) {
         Stage window = new Stage();
 
-        // block input events while AlertBox is present
+        // Block input events while dialog is present.
         window.initModality(Modality.APPLICATION_MODAL);
 
         window.setTitle(title);
@@ -41,7 +42,7 @@ public class NewProjectBox {
         Scene scene = new Scene(layout);
         window.setScene(scene);
 
-        // display window
+        // Display window.
         window.showAndWait();
 
         return projectName;

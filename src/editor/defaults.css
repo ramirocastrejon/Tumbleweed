@@ -1,0 +1,18 @@
+.keyword {
+    -fx-fill: blue;
+}
+.string {
+    -fx-fill: green;
+}
+.comment {
+	-fx-fill: gray;
+}
+.op {
+    -fx-fill: red;
+}
+.semicolon {
+}
+.paren {
+}
+.bracket {
+}

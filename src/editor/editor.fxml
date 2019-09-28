@@ -7,49 +7,106 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TreeView?>
 
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
 <?import javafx.scene.input.KeyCodeCombination?>
 
-<BorderPane prefHeight="400.0" prefWidth="600.0" styleClass="master-pane" stylesheets="@defaults.css" xmlns:fx="http://javafx.com/fxml" fx:controller="editor.Controller">
+<?import org.fxmisc.richtext.StyleClassedTextArea?>
+
+<!-- Main Window (Top and bottom nodes defined here as they are always present. Left, right, and center nodes defined are set in the controller based on app state.) -->
+<BorderPane fx:id="bpRoot" maxHeight="Infinity" maxWidth="Infinity" prefHeight="800" prefWidth="1280" stylesheets="@defaults.css" xmlns:fx="http://javafx.com/fxml" fx:controller="editor.Controller">
+
+    <!-- Menu Bar -->
    <top>
-       <MenuBar prefHeight="25.0" prefWidth="600.0" stylesheets="@defaults.css" BorderPane.alignment="CENTER">
-           <Menu text="File">
-               <MenuItem fx:id="newProject" mnemonicParsing="false" onAction="#newProject" text="New Project">
-                   <accelerator>
-                       <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                   </accelerator>
-               </MenuItem>
-               <MenuItem fx:id="openProject" mnemonicParsing="false" onAction="#openProject" text="Open Project">
-                   <accelerator>
-                       <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                   </accelerator>
-               </MenuItem>
-               <MenuItem fx:id="saveProject" onAction="#saveProject" text="Save Project">
-                   <accelerator>
-                       <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                   </accelerator>
-               </MenuItem>
-               <MenuItem id="exit" mnemonicParsing="false" onAction="#exit" text="Exit">
-                   <accelerator>
-                       <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
-                   </accelerator>
-               </MenuItem>
-           </Menu>
-       </MenuBar>
+       <VBox>
+        <MenuBar stylesheets="@defaults.css">
+            <Menu text="File">
+                <MenuItem fx:id="newProject" onAction="#newProject" text="New Project">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="openProject" onAction="#openProject" text="Open Project">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="saveProject" onAction="#saveProject" text="Save Project">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="closeProject" onAction="#closeProject" text="Close Project">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="newFile" onAction="#newFile" text="New File">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="N" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="openFile" onAction="#openFile" text="Open File">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="saveFile" onAction="#saveFile" text="Save File">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="closeFile" onAction="#closeFile" text="Close File">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="W" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+                <MenuItem fx:id="exit" onAction="#exit" text="Quit">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+            </Menu>
+            <Menu text="Edit">
+                <MenuItem fx:id="selectAll" onAction="#selectAll" text="Select All">
+                    <accelerator>
+                        <KeyCodeCombination alt="UP" code="A" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                    </accelerator>
+                </MenuItem>
+            </Menu>
+            <Menu text="Help">
+                <MenuItem text="me."></MenuItem>
+            </Menu>
+        </MenuBar>
+
+        <!-- Toolbar for building and executing project code. (eventually) -->
+        <!-- <ToolBar> -->
+        <!--     <Button text="Build"></Button> -->
+        <!--     <Button text="Run"></Button> -->
+        <!-- </ToolBar> -->
+    </VBox>
    </top>
-   <center>
-      <TextArea fx:id="textArea" nodeOrientation="LEFT_TO_RIGHT" styleClass="editor-textarea" wrapText="true">
-         <font>
-            <Font name="SansSerif Regular" size="12.0" />
-         </font>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-      </TextArea>
-   </center>
+
+   <!-- Editor -->
+   <!-- <center> -->
+   <!--      <StyleClassedTextArea fx:id="editorArea"></StyleClassedTextArea> -->
+   <!-- </center> -->
+
+   <!-- Status Bar -->
+   <bottom>
+       <ToolBar></ToolBar>
+   </bottom>
+
 </BorderPane>

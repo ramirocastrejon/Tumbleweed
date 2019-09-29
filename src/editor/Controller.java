@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -67,6 +65,9 @@ public class Controller implements Initializable {
     // Project selection node.
     private final ListView<String> projectListView = new ListView<String>();
 
+    // Default path for storing user projects.
+    private String projectsDirectoryPath;
+
     // Path to the currently opened project.
     private String currentProjectPath;
 
@@ -89,9 +90,9 @@ public class Controller implements Initializable {
         this.stage = primaryStage;
     }
 
-    private ArrayList<String> getProjectListing() {
+    private ArrayList<String> getProjectListing(String path) {
         ArrayList<String> projects = new ArrayList<String>();
-        File dir = new File(System.getenv("PWD"));
+        File dir = new File(path);
         for (File dirItem: dir.listFiles()) {
             if (dirItem.isDirectory()) {
                 File projectFile = new File(dirItem + "/.tumbleweed");
@@ -106,28 +107,28 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // TODO: Implement this in a platform indepedent way. Currently breaks on Windows.
-        fileChooser.setInitialDirectory(new File(System.getenv("PWD")));
-        directoryChooser.setInitialDirectory(new File(System.getenv("PWD")));
-        // FileChooser.ExtensionFilter txtExtFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
-        // fileChooser.getExtensionFilters().add(txtExtFilter);
+        projectsDirectoryPath = new String(System.getProperty("user.home") + "/TumbleweedProjects");
+        File projectsDirectoryPathFile = new File(projectsDirectoryPath);
+        if (!projectsDirectoryPathFile.exists()) {
+            System.out.println("Project directory not found. Creating...");
+            projectsDirectoryPathFile.mkdir();
+            System.out.println("Projects directory created at " + projectsDirectoryPath);
+        }
+        fileChooser.setInitialDirectory(projectsDirectoryPathFile);
+        directoryChooser.setInitialDirectory(projectsDirectoryPathFile);
     }
 
     private void buildProjectTree(File file, TreeItem<String> parent) {
-        System.out.println("Root directory: " + file);
-
         // Walk directory.
         if (file.isDirectory()) {
             TreeItem<String> treeItem = new TreeItem<>(file.getName());
             parent.getChildren().add(treeItem);
             for (File f: file.listFiles()) {
                 // Recurse.
-                System.out.println("Walking subdirectory: " + f);
                 buildProjectTree(f, treeItem);
             }
         }
         else {
-            System.out.println("Adding file to tree: " + file);
             parent.getChildren().add(new TreeItem<>(file.getName()));
         }
     }
@@ -186,7 +187,7 @@ public class Controller implements Initializable {
         }
 
         // Get all project directories.
-        ArrayList<String> projectListing = getProjectListing();
+        ArrayList<String> projectListing = getProjectListing(projectsDirectoryPath);
 
         // Populate projectListView.
         for (String project: projectListing) {
@@ -262,10 +263,8 @@ public class Controller implements Initializable {
         String projectDirectory = NewProjectDialog.display("Create Project");
 
         if (projectDirectory != null && projectDirectory.length() > 0) {
-            createProject(projectDirectory);
-
-            String currentWorkingDir = System.getenv("PWD");
-            currentProjectPath = currentWorkingDir + "/" + projectDirectory;
+            createProject(projectsDirectoryPath + "/" + projectDirectory);
+            currentProjectPath = projectsDirectoryPath + "/" + projectDirectory;
 
             // Add newly created project to projectListView.
             projectListView.getItems().add(currentProjectPath);

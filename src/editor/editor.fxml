@@ -86,8 +86,11 @@
                     </accelerator>
                 </MenuItem>
             </Menu>
-            <Menu text="Help">
-                <MenuItem text="me."></MenuItem>
+            <Menu text="Project">
+                <MenuItem fx:id="compile" onAction="#compileProject" text="Compile">
+                </MenuItem>
+                <MenuItem fx:id="run" onAction="#runProject" text="Run">
+                </MenuItem>
             </Menu>
         </MenuBar>
 

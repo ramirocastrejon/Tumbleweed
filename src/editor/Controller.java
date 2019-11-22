@@ -1,5 +1,6 @@
 package editor;
 
+import javax.tools.*;
 import java.io.*;
 import java.nio.file.*;
 import java.net.URL;
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -32,6 +35,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.paint.Color;
 
 import javafx.stage.FileChooser;
@@ -64,6 +69,29 @@ public class Controller implements Initializable {
 
     // Project selection node.
     private final ListView<String> projectListView = new ListView<String>();
+
+    // List containing project source files
+    private ArrayList<String> srcFiles = new ArrayList<>();
+
+    // Number of keywords in project
+    private int projectKeywords = 0;
+
+    // Keywords
+    private static final String[] KEYWORDS = new String[] {
+            "abstract", "assert", "boolean", "break", "byte",
+            "case", "catch", "char", "class", "const",
+            "continue", "default", "do", "double", "else",
+            "enum", "extends", "final", "finally", "float",
+            "for", "goto", "if", "implements", "import",
+            "instanceof", "int", "interface", "long", "native",
+            "new", "package", "private", "protected", "public",
+            "return", "short", "static", "strictfp", "super",
+            "switch", "synchronized", "this", "throw", "throws",
+            "transient", "try", "void", "volatile", "while"
+    };
+
+    // Keyword regex
+    private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS) + ")\\b";
 
     // Default path for storing user projects.
     private String projectsDirectoryPath;
@@ -125,6 +153,10 @@ public class Controller implements Initializable {
             parent.getChildren().add(treeItem);
             for (File f: file.listFiles()) {
                 // Recurse.
+                if (f.toString().endsWith(".java")) {
+                    System.out.println(f.toString());
+                    srcFiles.add(f.toString());
+                }
                 buildProjectTree(f, treeItem);
             }
         }
@@ -135,6 +167,8 @@ public class Controller implements Initializable {
 
     private void buildProjectTreeView(String projectPath) {
         // bpRoot left.
+
+        srcFiles.clear();
 
         System.out.println("Building tree view for project: " + projectPath);
 
@@ -152,8 +186,27 @@ public class Controller implements Initializable {
         projectTreeView = treeView;
     }
 
-    private void setProjectDetailView() {
+    private void setProjectDetailView(String projectPath) {
         // bpRoot right.
+        VBox vbox = new VBox();
+        vbox.setPadding(new Insets(10));
+        vbox.setSpacing(8);
+
+        Text title = new Text("Project Keywords");
+        vbox.getChildren().add(title);
+
+        int keywords = 0;
+        for (int i = 0; i < srcFiles.size(); i++) {
+            String src = srcFiles.get(i);
+            System.out.println(src);
+            int k = countKeywordsInFile(src);
+            keywords = keywords + k;
+        }
+
+        String keywordString = String.format("%d", keywords);
+        vbox.getChildren().add(new Text(keywordString));
+
+        bpRoot.setRight(vbox);
     }
 
     private void setProjectListView() {
@@ -216,8 +269,8 @@ public class Controller implements Initializable {
                 stage.setTitle(new String("Project: " + currentProjectPath));
                 buildProjectTreeView(currentProjectPath);
                 bpRoot.setLeft(projectTreeView);
-                bpRoot.setCenter(null);
-                // bpRoot.setRight(projectDetailView); // Not yet implemented.
+                bpRoot.setCenter(editorArea);
+                setProjectDetailView(currentProjectPath);
             }
         });
 
@@ -355,6 +408,7 @@ public class Controller implements Initializable {
                     bpRoot.setCenter(editorArea);
                     editorArea.clear();
                     buildProjectTreeView(currentProjectPath);
+                    bpRoot.setLeft(projectTreeView);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -363,6 +417,24 @@ public class Controller implements Initializable {
         else {
             System.out.println("Not in an open project. Cannot create a new file.");
         }
+    }
+
+    public int countKeywordsInFile(String filePath) {
+        int keywords = 0;
+        try {
+            String text = new String(Files.readAllBytes(Paths.get(filePath)));
+            Pattern pattern = Pattern.compile(
+                    "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
+            );
+            Matcher matcher = pattern.matcher(text);
+            while (matcher.find()) {
+                keywords++;
+            }
+            System.out.println(keywords);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return keywords;
     }
 
     public void openFile() {
@@ -407,6 +479,7 @@ public class Controller implements Initializable {
             writeToFile(text, currentFile);
             System.out.println("File saved.");
         }
+        setProjectDetailView(currentProjectPath);
     }
 
     public void closeFile() {
@@ -420,6 +493,31 @@ public class Controller implements Initializable {
 
             currentFilePath = null;
         }
+    }
+
+    public void compileProject() throws IOException, InterruptedException {
+        String cmd = "javac -d out " + currentProjectPath + "/Main.java";
+        Process exec = Runtime.getRuntime().exec(cmd);
+        exec.waitFor();
+        System.out.println(exec.exitValue());
+//        System.out.println(srcFile);
+//        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+
+//        int compilationResult = compiler.run(null, null, null, srcFile);
+
+//        if (compilationResult == 0) {
+//            System.out.println("Compilation successful.");
+//        }
+//        else {
+//            System.out.println("Compilation failed.");
+//        }
+
+}
+
+    public void runProject() throws InterruptedException, IOException {
+        Process exec = Runtime.getRuntime().exec(new String[] { "java", "-cp out/Main.class" });
+        exec.waitFor();
+        System.out.println(exec.exitValue());
     }
 
     public void selectAll() {

@@ -2,15 +2,14 @@ package editor;
 
 import javax.tools.*;
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.*;
 import java.net.URL;
 
 import java.time.Duration;
 
-import java.util.ArrayList;
-import java.util.ResourceBundle;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -496,10 +495,13 @@ public class Controller implements Initializable {
     }
 
     public void compileProject() throws IOException, InterruptedException {
-        String cmd = "javac -d out " + currentProjectPath + "/Main.java";
+        System.out.println("compiling");
+        JavaCompiler proj = ToolProvider.getSystemJavaCompiler();
+        proj.run(System.in,System.out,System.err,currentFilePath.toString());
+        /*String cmd = "javac -d out " + currentProjectPath + "/Main.java";
         Process exec = Runtime.getRuntime().exec(cmd);
         exec.waitFor();
-        System.out.println(exec.exitValue());
+        System.out.println(exec.exitValue());*/
 //        System.out.println(srcFile);
 //        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
@@ -514,10 +516,39 @@ public class Controller implements Initializable {
 
 }
 
-    public void runProject() throws InterruptedException, IOException {
-        Process exec = Runtime.getRuntime().exec(new String[] { "java", "-cp out/Main.class" });
+    public void runProject() throws InterruptedException, IOException,
+            ClassNotFoundException, NoSuchMethodException, InvocationTargetException,
+            IllegalAccessException, NoSuchFieldException {
+        /*Process exec = Runtime.getRuntime().exec(new String[] { "java", "-cp out/Main.class" });
         exec.waitFor();
-        System.out.println(exec.exitValue());
+        System.out.println(exec.exitValue());*/
+        ClassLoader pClassLoader = CustomClassLoader.class.getClassLoader();
+        CustomClassLoader classLoader = new CustomClassLoader(pClassLoader);
+        classLoader.setProjPath(currentProjectPath);
+        System.out.println(currentProjectPath);
+        Class compiled = classLoader.loadClass("main");
+        Method main = compiled.getDeclaredMethod("main",String[].class);
+        main.invoke(null, (Object) null);
+
+        System.out.println("Class Loaded: ");
+        for(Iterator iter = classList(classLoader); iter.hasNext();){
+            System.out.println("\t" +iter.next());
+
+        }
+    }
+
+    private static Iterator classList(CustomClassLoader CL)
+            throws NoSuchFieldException, SecurityException,
+            IllegalArgumentException, IllegalAccessException {
+        Class CL_class = CL.getClass();
+        while (CL_class != java.lang.ClassLoader.class) {
+            CL_class = CL_class.getSuperclass();
+        }
+        java.lang.reflect.Field ClassLoader_classes_field = CL_class
+                .getDeclaredField("classes");
+        ClassLoader_classes_field.setAccessible(true);
+        Vector classes = (Vector) ClassLoader_classes_field.get(CL);
+        return classes.iterator();
     }
 
     public void selectAll() {

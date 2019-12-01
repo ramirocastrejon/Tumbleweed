@@ -66,6 +66,9 @@ public class Controller implements Initializable {
     // Text editor node.
     private final CodeArea editorArea = new CodeArea();
 
+    //Output TextArea
+    private final TextArea consoleArea = new TextArea();
+
     // Project selection node.
     private final ListView<String> projectListView = new ListView<String>();
 
@@ -208,6 +211,15 @@ public class Controller implements Initializable {
         bpRoot.setRight(vbox);
     }
 
+    private void setConsoleAreaView(){
+        consoleArea.setEditable(false);
+        ConsoleOutput console = new ConsoleOutput(consoleArea);
+        PrintStream ps = new PrintStream(console, true);
+        System.setOut(ps);
+        System.setErr(ps);
+        bpRoot.setBottom(consoleArea);
+    }
+
     private void setProjectListView() {
         // bpRoot center.
     }
@@ -270,6 +282,7 @@ public class Controller implements Initializable {
                 bpRoot.setLeft(projectTreeView);
                 bpRoot.setCenter(editorArea);
                 setProjectDetailView(currentProjectPath);
+                setConsoleAreaView();
             }
         });
 
@@ -495,9 +508,11 @@ public class Controller implements Initializable {
     }
 
     public void compileProject() throws IOException, InterruptedException {
-        System.out.println("compiling");
+        consoleArea.clear();
         JavaCompiler proj = ToolProvider.getSystemJavaCompiler();
-        proj.run(System.in,System.out,System.err,currentFilePath.toString());
+        if(proj.run(System.in,System.out,System.err,currentFilePath.toString())==0)
+            System.out.println("Compiled successfully!");
+
         /*String cmd = "javac -d out " + currentProjectPath + "/Main.java";
         Process exec = Runtime.getRuntime().exec(cmd);
         exec.waitFor();
